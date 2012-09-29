@@ -64,7 +64,8 @@ function init() {
         protocol: new OpenLayers.Protocol.HTTP({
             url: scripts + 'tiles.php',
             params: getParams(),
-            format: new OpenLayers.Format.GeoJSON()
+            format: new OpenLayers.Format.GeoJSON(),
+            handleRead: handleMessageRead
         }),
         styleMap: new OpenLayers.StyleMap({'default': style, 'select': OpenLayers.Feature.Vector.style["select"]}),
         projection: epsg4326
@@ -202,6 +203,22 @@ function myCreateArgs() {
     if( age != defaultage ) args['age'] = age; else delete args['age'];
     delete args['show'];
     return args;
+}
+
+// Overriding protocol to display error message
+function handleMessageRead(resp, options) {
+    var request = resp.priv;
+    document.getElementById('message').style.visibility = 'hidden';
+    if( request.status >= 200 && request.status < 300 ) {
+        var doc = request.responseText;
+        if( doc.indexOf('error') > 0 ) {
+            var json = new OpenLayers.Format.JSON();
+            var error = json.read(doc);
+            document.getElementById('message').innerHTML = error.error;
+            document.getElementById('message').style.visibility = 'inherit';
+        }
+    }
+    OpenLayers.Protocol.HTTP.prototype.handleRead.apply(this, [resp, options]);
 }
 
 function htmlEscape(str) {

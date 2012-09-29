@@ -61,6 +61,17 @@
             font-size: 80%;
             text-align: right;
         }
+        #message {
+            position: absolute;
+            left: 64px;
+            top: 4em;
+            background-color: rgba(255,0,0,0.4);
+            color: white;
+            font-weight: bold;
+            padding: 1em 2em;
+            z-index: 999;
+        }
+
         /* get rid of scroll bars on google chrome (ugly hack) */
         @media screen and (-webkit-min-device-pixel-ratio:0) {
             #pop_contentDiv { overflow: hidden; }
@@ -74,15 +85,15 @@
         <span class="filters">
             <span id="vchangeset">Changeset: <input type="text" size="10" id="tchangeset" value=""> <input type="button" value="Apply" id="bchangeset" class="filtermargin" onclick="apply('changeset');"></span>
             <span id="vuser">User: <input type="text" size="25" id="tuser" value=""> <input type="button" value="Apply" id="buser" class="filtermargin" onclick="apply('user');"></span>
-            <span id="vage">Age: <select id="tage" onchange="setAge(this.value);" class="filtermargin"><option value="7">week</option><option value="31">month</option><option value="187">half a year</option><option value="1000">eternity</option></select></span>
-            <a id="vwhere" href="#" onclick="zoomToTiles(); return false;" style="visibility: hidden" class="filtermargin">Where?</a>
+            <span id="vage">Age: <select id="tage" onchange="setAge(this.value);" class="filtermargin"><option value="7">week</option></select></span>
+            <a id="vwhere" href="#" onclick="zoomToTiles(); return false;" style="visibility: hidden;" class="filtermargin">Where?</a>
         </span>
         <span class="rss">
             <input type="button" value="Get RSS link" onclick="startDrawBBOX();" id="brss"> <a href="#" id="rssurl" style="visibility: hidden;">RSS link</a>
         </span>
-        <!--a class="help" href="http://wiki.openstreetmap.org/wiki/WHO_DID_IT%3F">?</a-->
         <a class="help" href="wdi_guide.gif">?</a>
     </td></tr><tr><td>
+        <div id="message" style="visibility: hidden;"></div>
         <div id="map"></div>
     </td></tr></table>
 </body>

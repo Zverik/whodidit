@@ -4,12 +4,12 @@ require("db.inc.php");
 $extent = isset($_REQUEST['extent']) && $_REQUEST['extent'] = '1';
 $bbox = parse_bbox(isset($_REQUEST['bbox']) ? $_REQUEST['bbox'] : '');
 if( !$bbox && !$extent ) {
-    print '{ "error" : "BBox required." }';
+    print '{ "error" : "BBox required" }';
     exit;
 } else {
     #file_put_contents('debug', "$bbox[0] $bbox[1] $bbox[2] $bbox[3]: ".(($bbox[2]-$bbox[0]) * ($bbox[3]-$bbox[1])));
     if( ($bbox[2]-$bbox[0]) * ($bbox[3]-$bbox[1]) > 6000 ) {
-        print '{ "error" : "Too big bbox" }';
+        print '{ "error" : "Area is too large, please zoom in" }';
         exit;
     }
 }
@@ -52,7 +52,7 @@ $sql = 'select t.lat, t.lon, left(group_concat(t.changeset_id order by t.changes
 
 $res = $db->query($sql);
 if( $res->num_rows > 1000 ) {
-    print '{ "error" : "Too many rows." }';
+    print '{ "error" : "Too many tiles to display, please zoom in" }';
     exit;
 }
 
