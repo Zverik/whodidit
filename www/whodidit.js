@@ -86,10 +86,12 @@ function init() {
 
     function createPopup(feature) {
         var nodeinfo = feature.attributes.nodes_created + ' nodes created, ' + feature.attributes.nodes_modified + ' modified, ' + feature.attributes.nodes_deleted + ' deleted in this tile.<br>';
+        var bbox = feature.geometry.bounds.clone().transform(projectTo, epsg4326);
+        var josmlink = '<div class="openjosm"><a href="http://127.0.0.1:8111/load_and_zoom?left='+round2(bbox.left)+'&top='+round2(bbox.top)+'&right='+round2(bbox.right)+'&bottom='+round2(bbox.bottom)+'">Open in JOSM</a>';
         popup = new OpenLayers.Popup.FramedCloud("pop",
             feature.geometry.getBounds().getCenterLonLat(),
             null,
-            '<div class="markerContent">' + nodeinfo + 'Changesets: ' + feature.attributes.changesets + '</div>',
+            '<div class="markerContent">' + nodeinfo + 'Changesets: ' + feature.attributes.changesets + josmlink + '</div>',
             null,
             true,
             function() { selector.unselectAll(); }
@@ -120,9 +122,7 @@ function init() {
                         html += '<div class="comment">' + htmlEscape(ch['comment']) + '</div>';
                     html += '</div>';
                 }
-                var bbox = feature.geometry.bounds.transform(projectTo, epsg4326);
-                html += '<div class="openjosm"><a href="http://127.0.0.1:8111/load_and_zoom?left='+round2(bbox.left)+'&top='+round2(bbox.top)+'&right='+round2(bbox.right)+'&bottom='+round2(bbox.bottom)+'">Open in JOSM</a>';
-                html += '</div>';
+                html += josmlink + '</div>';
                 feature.popup.setContentHTML(html);
             }
         });
