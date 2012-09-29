@@ -1,0 +1,83 @@
+<html>
+<!-- WHODIDID Frontend. Written by Ilya Zverev, licensed WTFPL -->
+<head>
+    <title>WHODIDIT: OpenStreetMap Changeset Analyzer</title>
+    <script src="OpenLayers.js"></script> 
+    <script>var scripts = 'http://localhost/wdi/scripts/';</script>
+    <script src="whodidit.js"></script> 
+
+    <link rel="stylesheet" href="style.css" type="text/css"/>
+    <style type="text/css">
+        html, body, mapdiv {
+            font-family: Verdana, Helvetica, Arial, sans-serif;
+            color: black;
+        }
+
+        #page {
+            height: 100%;
+            width: 100%;
+            border-collapse: collapse;
+            padding: 0;
+        }
+        #filterbox {
+            padding-bottom: 0.5em;
+            height: 1em;
+        }
+        #map {
+            height: 100%;
+        }
+
+        div.olControlAttribution { bottom:40px; } 
+
+        #whodidit {
+            font-family: "Arial Black","Arial",sans-serif;
+            font-weight: 2000;
+            color: black;
+            padding-right: 2em;
+        }
+        .help {
+            position: absolute;
+            right: 0;
+        }
+        .filtermargin {
+            margin-right: 2em;
+        }
+     
+        .markerContent { font-size: 80%; }
+        .changeset { margin-bottom: 4px; }
+        .graph { border: 1px black solid; list-style: none; }
+        .graph span { padding: 0 4px; }
+        .created { background-color: #7f7; }
+        .modified { background-color: yellow; }
+        .deleted { background-color: #f77; }
+        .comment {
+            padding-left: 2em;
+            font-size: 80%;
+            color: gray;
+        }
+        /* get rid of scroll bars on google chrome (ugly hack) */
+        @media screen and (-webkit-min-device-pixel-ratio:0) {
+            #pop_contentDiv { overflow: hidden; }
+        }
+    </style>
+</head>
+
+<body onload="init()">
+    <table id="page"><tr><td id="filterbox">
+        <span id="whodidit">WHO DID IT?</span>
+        <span class="filters">
+            <span id="vchangeset">Changeset: <input type="text" size="10" id="tchangeset" value=""> <input type="button" value="Apply" id="bchangeset" class="filtermargin" onclick="apply('changeset');"></span>
+            <span id="vuser">User: <input type="text" size="25" id="tuser" value=""> <input type="button" value="Apply" id="buser" class="filtermargin" onclick="apply('user');"></span>
+            <span id="vage">Age: <select id="tage" onchange="setAge(this.value);" class="filtermargin"><option value="7">week</option><option value="31">month</option><option value="187">half a year</option><option value="1000">eternity</option></select></span>
+            <a id="vwhere" href="#" onclick="zoomToTiles(); return false;" style="visibility: hidden" class="filtermargin">Where?</a>
+        </span>
+        <span class="rss">
+            <input type="button" value="Get RSS link" onclick="startDrawBBOX();" id="brss"> <a href="#" id="rssurl" style="visibility: hidden;">RSS link</a>
+        </span>
+        <!--a class="help" href="http://wiki.openstreetmap.org/wiki/WHO_DID_IT%3F">?</a-->
+        <a class="help" href="wdi_guide.gif">?</a>
+    </td></tr><tr><td>
+        <div id="map"></div>
+    </td></tr></table>
+</body>
+</html>
