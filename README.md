@@ -1,5 +1,11 @@
 # WHODIDIT: OpenStreetMap Changeset Analyzer
 
+This tool downloads replication diffs from OSM Planet site, calculates statistics on changes
+and registers which 0.01-degree tiles were affected, and stores this in a MySQL database.
+A series of PHP scripts and a JS frontend are used to access that data.
+
+You can check a working installation at http://zverik.osm.rambler.ru/whodidit/
+
 ## Installation
 
 ### Database
