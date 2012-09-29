@@ -18,7 +18,7 @@ $db = connect();
 $changeset = isset($_REQUEST['changeset']) && preg_match('/^\d+$/', $_REQUEST['changeset']) ? ' and t.changeset_id = '.$_REQUEST['changeset'] : '';
 $user = isset($_REQUEST['user']) && strlen($_REQUEST['user']) > 0 ? ' and c.user_name = \''.$db->escape_string($_REQUEST['user']).'\'' : '';
 $age = isset($_REQUEST['age']) && preg_match('/^\d+$/', $_REQUEST['age']) ? $_REQUEST['age'] : 7;
-$age_sql = $changeset ? '' : " and date_add(c.change_time, interval $age day) > now()";
+$age_sql = $changeset ? '' : " and date_add(c.change_time, interval $age day) > utc_timestamp()";
 $bbox_query = $extent ? '' : " and t.lon >= $bbox[0] and t.lon <= $bbox[2] and t.lat >= $bbox[1] and t.lat <= $bbox[3]";
 
 if( $extent ) {

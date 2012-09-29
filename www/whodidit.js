@@ -14,8 +14,8 @@ var cookieName = '_wdi_location'; // comment out to not remember last location
 var epsg4326 =  new OpenLayers.Projection("EPSG:4326"); //WGS 1984 projection
 
 function init() {
+    populateAgeBox();
     var queryString = parseQueryString();
-
     if( queryString.changeset ) setChangeset(queryString.changeset);
     if( queryString.user ) setUser(queryString.user);
     setAge(queryString.age ? queryString.age : defaultage);
@@ -73,7 +73,8 @@ function init() {
     map.addLayer(vectorLayer);
 
     // Set centre. The location of the last lat lon to be processed. 
-    restoreLocation();
+    if( !map.getCenter() )
+        restoreLocation();
     if (!map.getCenter()) {
         var zoom=4;
         var lonLat = new OpenLayers.LonLat(32, 50).transform(epsg4326, projectTo);
@@ -119,6 +120,8 @@ function init() {
                         html += '<div class="comment">' + htmlEscape(ch['comment']) + '</div>';
                     html += '</div>';
                 }
+                var bbox = feature.geometry.bounds.transform(projectTo, epsg4326);
+                html += '<div class="openjosm"><a href="http://127.0.0.1:8111/load_and_zoom?left='+round2(bbox.left)+'&top='+round2(bbox.top)+'&right='+round2(bbox.right)+'&bottom='+round2(bbox.bottom)+'">Open in JOSM</a>';
                 html += '</div>';
                 feature.popup.setContentHTML(html);
             }
@@ -356,4 +359,18 @@ function restoreLocation() {
             }
         }
     }
+}
+
+function populateAgeBox() {
+    var sel = document.getElementById('tage');
+    sel.options.length = 0;
+    sel.options[sel.options.length] = new Option('day', 1);
+    sel.options[sel.options.length] = new Option('week', 7);
+    sel.options[sel.options.length] = new Option('month', 31);
+    sel.options[sel.options.length] = new Option('half a year', 187);
+    sel.options[sel.options.length] = new Option('eternity', 1000);
+}
+
+function round2(n) {
+    return Math.round(n*1000)/1000;
 }
