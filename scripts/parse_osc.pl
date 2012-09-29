@@ -33,6 +33,7 @@ my $zipped;
 my $tile_size = 0.01;
 my $clear;
 my $bbox_str = '-180,-90,180,90';
+my $dbprefix = 'wdi_';
 
 GetOptions(#'h|help' => \$help,
            'v|verbose' => \$verbose,
@@ -55,7 +56,7 @@ if( $help ) {
 }
 
 usage("Please specify database and user names") unless $database && $user;
-my $db = DBIx::Simple->connect("DBI:mysql:database=$database;host=$dbhost", $user, $password, {RaiseError => 1});
+my $db = DBIx::Simple->connect("DBI:mysql:database=$database;host=$dbhost;mysql_enable_utf8=1", $user, $password, {RaiseError => 1});
 create_table() if $clear;
 my $ua = LWP::UserAgent->new();
 $ua->env_proxy;
@@ -195,7 +196,7 @@ sub flush_tiles {my ($tiles, $chs) = @_;
     printf STDERR "[Cnt/Mem: T=%d/%dk C=%d/%dk] ", scalar keys %{$tiles}, total_size($tiles)/1024, scalar keys %{$chs}, total_size($chs)/1024 if $verbose;
 
     my $sql_ch = <<CHSQL;
-insert into wdi_changesets
+insert into ${dbprefix}changesets
     (changeset_id, change_time, comment, user_id, user_name, created_by,
     nodes_created, nodes_modified, nodes_deleted,
     ways_created, ways_modified, ways_deleted,
@@ -214,7 +215,7 @@ on duplicate key update
     relations_deleted = relations_deleted + values(relations_deleted)
 CHSQL
     my $sql_t = <<CHSQL;
-insert into wdi_tiles
+insert into ${dbprefix}tiles
     (lat, lon, changeset_id, nodes_created, nodes_modified, nodes_deleted)
     values (??)
 on duplicate key update
@@ -278,11 +279,11 @@ sub decode_xml_entities {
 }
 
 sub create_table {
-    $db->query('drop table if exists wdi_tiles') or die $db->error;
-    $db->query('drop table if exists wdi_changesets') or die $db->error;
+    $db->query("drop table if exists ${dbprefix}tiles") or die $db->error;
+    $db->query("drop table if exists ${dbprefix}changesets") or die $db->error;
 
     my $sql = <<CREAT1;
-create table wdi_tiles (
+create table ${dbprefix}tiles (
         who_id int unsigned not null auto_increment primary key,
 	lat smallint not null,
 	lon smallint not null,
@@ -298,7 +299,7 @@ create table wdi_tiles (
 CREAT1
     $db->query($sql) or die $db->error;
     $sql = <<CREAT2;
-create table wdi_changesets (
+create table ${dbprefix}changesets (
         changeset_id int unsigned not null primary key,
 	change_time datetime not null,
 	comment varchar(254),
