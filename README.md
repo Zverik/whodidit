@@ -60,4 +60,4 @@ Then write your database parameters into `connect()` function in `db.inc.php`, a
 
 ## Author
 
-Everything here is written by Ilya Zverev, licensed WTFPL.
+Everything here (except OpenLayers, of course) is written by Ilya Zverev, licensed WTFPL.
