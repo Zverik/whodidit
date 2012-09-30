@@ -1,17 +1,26 @@
 <? # Returns all tiles inside a bbox, possibly filtered. Written by Ilya Zverev, licensed WTFPL.
-header('Content-type: application/json; charset=utf-8');
 require("db.inc.php");
+header('Content-type: application/json; charset=utf-8');
+if( strstr($_SERVER['HTTP_USER_AGENT'], 'MSIE') == false ) {
+    header('Expires: Fri, 01 Jan 2010 05:00:00 GMT');
+    header('Cache-Control: no-cache, must-revalidate');
+    header('Pragma: no-cache');
+} else {
+    header('Cache-Control: no-cache');
+    header('Expires: -1');
+}
+$small_tile_limit = 6000;
+
 $extent = isset($_REQUEST['extent']) && $_REQUEST['extent'] = '1';
 $bbox = parse_bbox(isset($_REQUEST['bbox']) ? $_REQUEST['bbox'] : '');
+$tile_count = ($bbox[2]-$bbox[0]) * ($bbox[3]-$bbox[1]);
 if( !$bbox && !$extent ) {
     print '{ "error" : "BBox required" }';
     exit;
-} else {
-    #file_put_contents('debug', "$bbox[0] $bbox[1] $bbox[2] $bbox[3]: ".(($bbox[2]-$bbox[0]) * ($bbox[3]-$bbox[1])));
-    if( ($bbox[2]-$bbox[0]) * ($bbox[3]-$bbox[1]) > 6000 ) {
-        print '{ "error" : "Area is too large, please zoom in" }';
-        exit;
-    }
+}
+if( $tile_count > $small_tile_limit ) { // replace limit with a bigger number to get aggregate tiles
+    print '{ "error" : "Area is too large, please zoom in" }';
+    exit;
 }
 
 $db = connect();
@@ -43,12 +52,18 @@ if( $extent ) {
     exit;
 }
 
-$sql = 'select t.lat, t.lon, left(group_concat(t.changeset_id order by t.changeset_id desc separator \',\'),300) as changesets, sum(t.nodes_created) as nc, sum(t.nodes_modified) as nm, sum(t.nodes_deleted) as nd from wdi_tiles t, wdi_changesets c where c.changeset_id = t.changeset_id'.
+if( $tile_count <= $small_tile_limit ) {
+    $sql = 'select t.lat as rlat, t.lon as rlon';
+} else {
+    $sql = 'select floor(t.lat/10) as rlat, floor(t.lon/10) as rlon';
+    $tile_size *= 10;
+}
+$sql .= ', left(group_concat(t.changeset_id order by t.changeset_id desc separator \',\'),300) as changesets, sum(t.nodes_created) as nc, sum(t.nodes_modified) as nm, sum(t.nodes_deleted) as nd from wdi_tiles t, wdi_changesets c where c.changeset_id = t.changeset_id'.
     $bbox_query.
     $age_sql.
     $user.
     $changeset.
-    ' group by t.lat,t.lon limit 1001';
+    ' group by rlat,rlon limit 1001';
 
 $res = $db->query($sql);
 if( $res->num_rows > 1000 ) {
@@ -58,11 +73,10 @@ if( $res->num_rows > 1000 ) {
 
 print '{ "type" : "FeatureCollection", "features" : ['."\n";
 $first = true;
-$id = 0;
 while( $row = $res->fetch_assoc() ) {
     if( !$first ) print ",\n"; else $first = false;
-    $lon = $row['lon'] * $tile_size;
-    $lat = $row['lat'] * $tile_size;
+    $lon = $row['rlon'] * $tile_size;
+    $lat = $row['rlat'] * $tile_size;
     $poly = array( array($lon, $lat), array($lon+$tile_size, $lat), array($lon+$tile_size, $lat+$tile_size), array($lon, $lat+$tile_size), array($lon, $lat) );
     $changesets = $row['changesets'];
     if( substr_count($changesets, ',') >= 10 ) {
@@ -80,7 +94,6 @@ while( $row = $res->fetch_assoc() ) {
             'nodes_modified' => $row['nm'],
             'nodes_deleted' => $row['nd']
         )
-        #'id' => 'a'.($id++)
     );
     print json_encode($feature);
 }
