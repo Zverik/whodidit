@@ -66,7 +66,8 @@ function init() {
             url: scripts + 'tiles.php',
             params: getParams(),
             format: new OpenLayers.Format.GeoJSON(),
-            handleRead: handleMessageRead
+            handleRead: handleMessageRead,
+            read: startMessageRead
         }),
         styleMap: new OpenLayers.StyleMap({'default': style, 'select': OpenLayers.Feature.Vector.style["select"]}),
         projection: epsg4326
@@ -207,6 +208,11 @@ function myCreateArgs() {
 }
 
 // Overriding protocol to display error message
+function startMessageRead(options) {
+    document.getElementById('message').style.visibility = 'hidden';
+    OpenLayers.Protocol.HTTP.prototype.read.apply(this, [options]);
+}
+
 function handleMessageRead(resp, options) {
     var request = resp.priv;
     document.getElementById('message').style.visibility = 'hidden';
