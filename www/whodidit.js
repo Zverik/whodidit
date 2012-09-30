@@ -210,7 +210,7 @@ function myCreateArgs() {
 // Overriding protocol to display error message
 function startMessageRead(options) {
     document.getElementById('message').style.visibility = 'hidden';
-    OpenLayers.Protocol.HTTP.prototype.read.apply(this, [options]);
+    return OpenLayers.Protocol.HTTP.prototype.read.apply(this, arguments);
 }
 
 function handleMessageRead(resp, options) {
@@ -225,7 +225,7 @@ function handleMessageRead(resp, options) {
             document.getElementById('message').style.visibility = 'inherit';
         }
     }
-    OpenLayers.Protocol.HTTP.prototype.handleRead.apply(this, [resp, options]);
+    OpenLayers.Protocol.HTTP.prototype.handleRead.apply(this, arguments);
 }
 
 function htmlEscape(str) {
