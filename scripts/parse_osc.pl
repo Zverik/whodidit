@@ -256,8 +256,8 @@ sub get_changeset {
     my $content = $resp->content;
     my $c = {};
     $c->{id} = $changeset_id;
-    $c->{comment} = decode_xml_entities($1) if $content =~ /k=["']comment['"]\s+v=['"]([^'"]+)['"]/;
-    $c->{created_by} = decode_xml_entities($1) if $content =~ /k=["']created_by['"]\s+v=['"]([^'"]+)['"]/;
+    $c->{comment} = decode_xml_entities($1) if $content =~ /k=["']comment['"]\s+v="([^"]+)"/;
+    $c->{created_by} = decode_xml_entities($1) if $content =~ /k=["']created_by['"]\s+v="([^"]+)"/;
     $content =~ /\suser="([^"]+)"/;
     $c->{username} = decode_xml_entities($1) || '';
     $content =~ /\suid="([^"]+)"/;
