@@ -9,7 +9,11 @@ if( strstr($_SERVER['HTTP_USER_AGENT'], 'MSIE') == false ) {
     header('Cache-Control: no-cache');
     header('Expires: -1');
 }
-$small_tile_limit = 6000;
+$small_tile_limit = 6000; // bbox requested must contain no more than this much tiles
+$aggregate_tile_limit = $small_tile_limit * 100; // in some cases it is allowed to contain this much
+$db_tile_limit = 1000; // if there are this much tiles in DB, return error
+$aggregate_db_limit = 400; // if there are less than this much DB tiles in bbox, allow aggregate tiles
+$aggregate_only_filtered = true; // show aggregate tiles only when filtered by a user or a changeset
 
 $extent = isset($_REQUEST['extent']) && $_REQUEST['extent'] = '1';
 $bbox = parse_bbox(isset($_REQUEST['bbox']) ? $_REQUEST['bbox'] : '');
@@ -19,27 +23,41 @@ if( !$bbox && !$extent ) {
     exit;
 }
 
+$aggregate = false;
 $db = connect();
 $changeset = isset($_REQUEST['changeset']) && preg_match('/^\d+$/', $_REQUEST['changeset']) ? ' and t.changeset_id = '.$_REQUEST['changeset'] : '';
+if( strlen($changeset) > 0 ) $aggregate = true;
 $age = isset($_REQUEST['age']) && preg_match('/^\d+$/', $_REQUEST['age']) ? $_REQUEST['age'] : 7;
 $age_sql = $changeset ? '' : " and date_add(c.change_time, interval $age day) > utc_timestamp()";
 $bbox_query = $extent ? '' : " and t.lon >= $bbox[0] and t.lon <= $bbox[2] and t.lat >= $bbox[1] and t.lat <= $bbox[3]";
 if( isset($_REQUEST['user']) && strlen($_REQUEST['user']) > 0 ) {
     $username = $_REQUEST['user'];
     $eqsign = '=';
+    $aggregate = true;
     if( substr($username, 0, 1) == '!' ) {
         $ures = $db->query('select 1 from wdi_changesets where user_name = \''.$db->escape_string($username).'\' group by user_name limit 1');
         if( $ures->num_rows == 0 ) {
             $username = substr($username, 1);
             $eqsign = '<>';
+            $aggregate = false; // it negates changeset filter, but this we can ignore
         }
     }
     $user = " and c.user_name $eqsign '".$db->escape_string($username).'\'';
 } else
     $user = '';
 
-// show aggregate tiles when filtering by a user or a changeset
-$tile_limit = strlen($changeset) > 0 || (strlen($user) > 0 && strpos($user, '<>') === false) ? $small_tile_limit * 100 : $small_tile_limit;
+if( $aggregate && !$aggregate_only_filtered && isset($aggregate_db_limit) && $aggregate_db_limit > 0 ) {
+    $test_sql = 'select 1 from wdi_tiles t, wdi_changesets c where c.changeset_id = t.changeset_id'.
+        $bbox_query.
+        $age_sql.
+        $user.
+        $changeset.
+        ' limit '.$aggregate_db_limit;
+    $tres = $db->query($test_sql);
+    $aggregate = $tres->num_rows < $aggregate_db_limit;
+}
+
+$tile_limit = $aggregate ? $aggregate_tile_limit : $small_tile_limit;
 if( $tile_count > $tile_limit ) {
     print '{ "error" : "Area is too large, please zoom in" }';
     exit;
@@ -78,10 +96,10 @@ $sql .= ', left(group_concat(t.changeset_id order by t.changeset_id desc separat
     $age_sql.
     $user.
     $changeset.
-    ' group by rlat,rlon limit 1001';
+    ' group by rlat,rlon limit '.($db_tile_limit+1);
 
 $res = $db->query($sql);
-if( $res->num_rows > 1000 ) {
+if( $res->num_rows > $db_tile_limit ) {
     print '{ "error" : "Too many tiles to display, please zoom in" }';
     exit;
 }

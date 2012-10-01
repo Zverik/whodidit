@@ -182,6 +182,7 @@ function parseQueryString() {
     var vars = query.split("&");
     for( var i = 0; i < vars.length; i++ ) {
         var pair = vars[i].split("=");
+        pair[1] = decodeURIComponent(pair[1]);
         if (typeof query_string[pair[0]] === "undefined") {
             // If first entry with this name
             query_string[pair[0]] = pair[1];
