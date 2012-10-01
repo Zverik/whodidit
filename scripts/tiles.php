@@ -18,17 +18,32 @@ if( !$bbox && !$extent ) {
     print '{ "error" : "BBox required" }';
     exit;
 }
-if( $tile_count > $small_tile_limit ) { // replace limit with a bigger number to get aggregate tiles
-    print '{ "error" : "Area is too large, please zoom in" }';
-    exit;
-}
 
 $db = connect();
 $changeset = isset($_REQUEST['changeset']) && preg_match('/^\d+$/', $_REQUEST['changeset']) ? ' and t.changeset_id = '.$_REQUEST['changeset'] : '';
-$user = isset($_REQUEST['user']) && strlen($_REQUEST['user']) > 0 ? ' and c.user_name = \''.$db->escape_string($_REQUEST['user']).'\'' : '';
 $age = isset($_REQUEST['age']) && preg_match('/^\d+$/', $_REQUEST['age']) ? $_REQUEST['age'] : 7;
 $age_sql = $changeset ? '' : " and date_add(c.change_time, interval $age day) > utc_timestamp()";
 $bbox_query = $extent ? '' : " and t.lon >= $bbox[0] and t.lon <= $bbox[2] and t.lat >= $bbox[1] and t.lat <= $bbox[3]";
+if( isset($_REQUEST['user']) && strlen($_REQUEST['user']) > 0 ) {
+    $username = $_REQUEST['user'];
+    $eqsign = '=';
+    if( substr($username, 0, 1) == '!' ) {
+        $ures = $db->query('select 1 from wdi_changesets where user_name = \''.$db->escape_string($username).'\' group by user_name limit 1');
+        if( $ures->num_rows == 0 ) {
+            $username = substr($username, 1);
+            $eqsign = '<>';
+        }
+    }
+    $user = " and c.user_name $eqsign '".$db->escape_string($username).'\'';
+} else
+    $user = '';
+
+// show aggregate tiles when filtering by a user or a changeset
+$tile_limit = strlen($changeset) > 0 || (strlen($user) > 0 && strpos($user, '<>') === false) ? $small_tile_limit * 100 : $small_tile_limit;
+if( $tile_count > $tile_limit ) {
+    print '{ "error" : "Area is too large, please zoom in" }';
+    exit;
+}
 
 if( $extent ) {
     // write bbox and exit
