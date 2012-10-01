@@ -90,7 +90,7 @@ function init() {
     function createPopup(feature) {
         var nodeinfo = feature.attributes.nodes_created + ' nodes created, ' + feature.attributes.nodes_modified + ' modified, ' + feature.attributes.nodes_deleted + ' deleted in this tile.<br>';
         var bbox = feature.geometry.bounds.clone().transform(projectTo, epsg4326);
-        var josmlink = '<div class="openjosm"><a href="http://127.0.0.1:8111/load_and_zoom?left='+round2(bbox.left)+'&top='+round2(bbox.top)+'&right='+round2(bbox.right)+'&bottom='+round2(bbox.bottom)+'">Open in JOSM</a>';
+        var josmlink = '<div class="openjosm"><a href="http://127.0.0.1:8111/load_and_zoom?left='+round2(bbox.left)+'&top='+round2(bbox.top)+'&right='+round2(bbox.right)+'&bottom='+round2(bbox.bottom)+'" target="_blank">Open in JOSM</a>';
         popup = new OpenLayers.Popup.FramedCloud("pop",
             feature.geometry.getBounds().getCenterLonLat(),
             null,
@@ -114,9 +114,9 @@ function init() {
                     var color = ch['suspicious'] ? 'red' : 'green';
                     var date_str = months[ch['change_time'].substr(5,2)-1] + ' ' + ch['change_time'].substr(8,2);
                     html += '<span style="color: '+color+';">' + date_str + '</span>';
-                    html += ': <a href="http://openstreetmap.org/browse/changeset/' + ch['changeset_id'] + '">changeset</a>';
+                    html += ': <a href="http://openstreetmap.org/browse/changeset/' + ch['changeset_id'] + '" target="_blank">changeset</a>';
                     html += ' <a href="#" title="Filter by this changeset" onclick="setChangeset(' + ch['changeset_id'] + '); return false;" class="filter">[F]</a>';
-                    html += ' by user <a href="http://openstreetmap.org/user/' + encodeURI(ch['user_name']) + '">' + htmlEscape(ch['user_name']) + '</a>';
+                    html += ' by user <a href="http://openstreetmap.org/user/' + encodeURI(ch['user_name']) + '" target="_blank">' + htmlEscape(ch['user_name']) + '</a>';
                     html += ' <a href="#" title="Filter by this user" onclick="setUser(\'' + htmlEscape(ch['user_name']) + '\'); return false;" class="filter">[F]</a>';
                     html += '. <span class="stat">Nodes:<span class="graph"><span class="created">'+ch['nodes_created']+'</span><span class="modified">'+ch['nodes_modified']+'</span><span class="deleted">'+ch['nodes_deleted']+'</span></span></span>';
                     html += ' <span class="stat">Ways:<span class="graph"><span class="created">'+ch['ways_created']+'</span><span class="modified">'+ch['ways_modified']+'</span><span class="deleted">'+ch['ways_deleted']+'</span></span></span>';
