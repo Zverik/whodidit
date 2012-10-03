@@ -29,8 +29,8 @@ function is_changeset_suspicious( $ch ) {
     // mass-change/deletion
     if( $ch['nodes_modified'] + $ch['nodes_deleted'] + $ch['ways_modified'] + $ch['ways_deleted'] > 5000 ) return true;
     if( $ch['relations_modified'] + $ch['relations_deleted'] > 40 ) return true;
-    // potlatch + ways or relations modified/deleted
-    if( strpos($ch['created_by'], 'Potlatch') !== FALSE && $ch['ways_modified'] + $ch['ways_deleted'] + $ch['relations_modified'] + $ch['relations_deleted'] > 0 ) return true;
+    // potlatch + relations modified or deleted
+    if( strpos($ch['created_by'], 'Potlatch') !== FALSE && $ch['relations_modified'] + $ch['relations_deleted'] > 0 ) return true;
     // well, seems normal
     return false;
 }
