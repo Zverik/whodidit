@@ -30,6 +30,7 @@ if( strlen($changeset) > 0 ) $aggregate = true;
 $age = isset($_REQUEST['age']) && preg_match('/^\d+$/', $_REQUEST['age']) ? $_REQUEST['age'] : 7;
 $age_sql = $changeset ? '' : " and date_add(c.change_time, interval $age day) > utc_timestamp()";
 $bbox_query = $extent ? '' : " and t.lon >= $bbox[0] and t.lon <= $bbox[2] and t.lat >= $bbox[1] and t.lat <= $bbox[3]";
+$editor = isset($_REQUEST['editor']) && strlen($_REQUEST['editor']) > 0 ? ' and c.created_by like \'%'.$db->escape_string($_REQUEST['editor']).'%\'' : '';
 if( isset($_REQUEST['user']) && strlen($_REQUEST['user']) > 0 ) {
     $username = $_REQUEST['user'];
     $eqsign = '=';
@@ -51,6 +52,7 @@ if( $aggregate && !$aggregate_only_filtered && isset($aggregate_db_limit) && $ag
         $bbox_query.
         $age_sql.
         $user.
+        $editor.
         $changeset.
         ' limit '.$aggregate_db_limit;
     $tres = $db->query($test_sql);
@@ -95,6 +97,7 @@ $sql .= ', left(group_concat(t.changeset_id order by t.changeset_id desc separat
     $bbox_query.
     $age_sql.
     $user.
+    $editor.
     $changeset.
     ' group by rlat,rlon limit '.($db_tile_limit+1);
 

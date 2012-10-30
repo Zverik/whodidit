@@ -11,14 +11,14 @@ $sql = "select c.* from wdi_tiles t, wdi_changesets c where t.changeset_id = c.c
 $res = $db->query($sql);
 $bbox_str = $bbox[0]*$tile_size.','.$bbox[1]*$tile_size.','.($bbox[2]+1)*$tile_size.','.($bbox[3]+1)*$tile_size;
 //\t<link>http://openstreetmap.org/?box=yes&amp;bbox=$bbox_str</link>
-$latlon = 'lat='.(($bbox[3]+$bbox[1])/2).'&lon='.(($bbox[2]+$bbox[0])/2);
+$latlon = 'lat='.(($bbox[3]+$bbox[1])*$tile_size/2).'&amp;lon='.(($bbox[2]+$bbox[0])*$tile_size/2);
 print <<<"EOT"
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
 <channel>
 \t<title>WhoDidIt Feed for BBOX [$bbox_str]</title>
 \t<description>WhoDidIt feed for BBOX [$bbox_str]</description>
-\t<link>$frontend_url?$latlon&zoom=14</link>
+\t<link>$frontend_url?$latlon&amp;zoom=12</link>
 \t<generator>WhoDidIt</generator>
 \t<ttl>60</ttl>
 

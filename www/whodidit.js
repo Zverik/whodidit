@@ -8,6 +8,7 @@ var permalink;
 var changeset;
 var username;
 var age;
+var editor;
 var defaultage = 7; // should be equal to the default age in tiles.php
 
 var cookieName = '_wdi_location'; // comment out to not remember last location
@@ -18,6 +19,7 @@ function init() {
     var queryString = parseQueryString();
     if( queryString.changeset ) setChangeset(queryString.changeset);
     if( queryString.user ) setUser(queryString.user);
+    if( queryString.editor ) editor = queryString.editor;
     setAge(queryString.age ? queryString.age : defaultage);
 
     map = new OpenLayers.Map('map', {displayProjection: epsg4326});
@@ -203,6 +205,7 @@ function myCreateArgs() {
     var args = OpenLayers.Control.Permalink.prototype.createParams.apply(this, arguments);
     if( changeset ) args['changeset'] = changeset; else delete args['changeset'];
     if( username ) args['user'] = username; else delete args['user'];
+    if( editor ) args['editor'] = editor; else delete args['editor'];
     if( age != defaultage ) args['age'] = age; else delete args['age'];
     delete args['show'];
     return args;
@@ -243,6 +246,7 @@ function getParams() {
     return {
         'age': age,
         'changeset': changeset,
+        'editor': editor,
         'user': username
     };
 }
