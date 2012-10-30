@@ -10,13 +10,15 @@ $db = connect();
 $sql = "select c.* from wdi_tiles t, wdi_changesets c where t.changeset_id = c.changeset_id and t.lon >= $bbox[0] and t.lon <= $bbox[2] and t.lat >= $bbox[1] and t.lat <= $bbox[3] group by c.changeset_id order by c.change_time desc limit 20";
 $res = $db->query($sql);
 $bbox_str = $bbox[0]*$tile_size.','.$bbox[1]*$tile_size.','.($bbox[2]+1)*$tile_size.','.($bbox[3]+1)*$tile_size;
+//\t<link>http://openstreetmap.org/?box=yes&amp;bbox=$bbox_str</link>
+$latlon = 'lat='.(($bbox[3]+$bbox[1])/2).'&lon='.(($bbox[2]+$bbox[0])/2);
 print <<<"EOT"
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
 <channel>
 \t<title>WhoDidIt Feed for BBOX [$bbox_str]</title>
-\t<link>http://openstreetmap.org/?box=yes&amp;bbox=$bbox_str</link>
 \t<description>WhoDidIt feed for BBOX [$bbox_str]</description>
+\t<link>$frontend_url?$latlon&zoom=14</link>
 \t<generator>WhoDidIt</generator>
 \t<ttl>60</ttl>
 
@@ -26,7 +28,7 @@ while( $row = $res->fetch_assoc() ) {
     $susp = is_changeset_suspicious($row) ? '[!] ' : '';
     $untitled = !$row['comment'] || strlen($row['comment']) <= 2 || substr($row['comment'], 0, 5) == 'BBOX:';
     print "\t<item>\n";
-    print "\t\t<title>${susp}User ".htmlspecialchars($row['user_name'])." has uploaded ".($untitled?'untitled ':'')."changeset".($untitled?'':': &quot;'.htmlspecialchars($row['comment']).'&quot;')."</title>\n";
+    print "\t\t<title>${susp}User ".htmlspecialchars($row['user_name'])." has uploaded ".($untitled?'an untitled ':'a ')."changeset".($untitled?'':': &quot;'.htmlspecialchars($row['comment']).'&quot;')."</title>\n";
     print "\t\t<link>http://openstreetmap.org/browse/changeset/${row['changeset_id']}</link>\n";
     $date = strtotime($row['change_time']);
     $date_str = date(DATE_RSS, $date);
