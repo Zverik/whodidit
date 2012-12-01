@@ -1,5 +1,6 @@
 <? # Generates RSS feed for BBOX. Written by Ilya Zverev, licensed WTFPL.
 require("db.inc.php");
+$filter = isset($_REQUEST['filter']) ? $_REQUEST['filter'] : 0;
 $bbox = parse_bbox(isset($_REQUEST['bbox']) ? $_REQUEST['bbox'] : '');
 if( !$bbox ) {
     print 'error: BBox required.';
@@ -7,7 +8,7 @@ if( !$bbox ) {
 }
 header('Content-type: application/rss+xml; charset=utf-8');
 $db = connect();
-$sql = "select c.* from wdi_tiles t, wdi_changesets c where t.changeset_id = c.changeset_id and t.lon >= $bbox[0] and t.lon <= $bbox[2] and t.lat >= $bbox[1] and t.lat <= $bbox[3] group by c.changeset_id order by c.change_time desc limit 20";
+$sql = "select c.* from wdi_tiles t, wdi_changesets c where t.changeset_id = c.changeset_id and t.lon >= $bbox[0] and t.lon <= $bbox[2] and t.lat >= $bbox[1] and t.lat <= $bbox[3] group by c.changeset_id order by c.change_time desc limit ".($filter ? '150' : '20');
 $res = $db->query($sql);
 $bbox_str = $bbox[0]*$tile_size.','.$bbox[1]*$tile_size.','.($bbox[2]+1)*$tile_size.','.($bbox[3]+1)*$tile_size;
 //\t<link>http://openstreetmap.org/?box=yes&amp;bbox=$bbox_str</link>
@@ -24,8 +25,10 @@ print <<<"EOT"
 
 EOT;
 date_default_timezone_set('UTC');
+$count = 20;
 while( $row = $res->fetch_assoc() ) {
     $susp = is_changeset_suspicious($row) ? '[!] ' : '';
+    if( $filter && !$susp ) continue;
     $untitled = !$row['comment'] || strlen($row['comment']) <= 2 || substr($row['comment'], 0, 5) == 'BBOX:';
     print "\t<item>\n";
     print "\t\t<title>${susp}User ".htmlspecialchars($row['user_name'])." has uploaded ".($untitled?'an untitled ':'a ')."changeset".($untitled?'':': &quot;'.htmlspecialchars($row['comment']).'&quot;')."</title>\n";
@@ -40,6 +43,7 @@ while( $row = $res->fetch_assoc() ) {
     $desc .= '<li>Relations: '.$row['relations_created'].' created, '.$row['relations_modified'].' modified, '.$row['relations_deleted'].' deleted</li></ul>';
     print "\t\t<description>".htmlspecialchars($desc)."</description>\n";
     print "\t</item>\n";
+    if( --$count <= 0 ) break;
 }
 print "</channel>\n</rss>";
 ?>
