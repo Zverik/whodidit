@@ -332,7 +332,7 @@ function startDrawBBOX() {
     if( boxLayer.features.length > 0 ) {
         boxLayer.removeAllFeatures();
         document.getElementById('brss').value='Get RSS link';
-        document.getElementById('rssurl').style.visibility='hidden';
+        document.getElementById('rssurlbox').style.visibility='hidden';
     } else {
         boxControl.activate();
         document.getElementById('brss').value='Draw a box';
@@ -342,8 +342,10 @@ function startDrawBBOX() {
 function featureAdded(feature) {
     boxControl.deactivate();
     document.getElementById('brss').value='Clear RSS link';
-    document.getElementById('rssurl').style.visibility='inherit';
-    document.getElementById('rssurl').href=scripts + 'rss.php?bbox=' + feature.geometry.bounds.transform(projectTo, epsg4326).toBBOX();
+    document.getElementById('rssurlbox').style.visibility='inherit';
+    var bboxstr = feature.geometry.bounds.transform(projectTo, epsg4326).toBBOX();
+    document.getElementById('rssurl').href=scripts + 'rss.php?bbox=' + bboxstr;
+    document.getElementById('rssfurl').href=scripts + 'rss.php?filter=1&bbox=' + bboxstr;
 }
 
 function zoomToTiles() {
