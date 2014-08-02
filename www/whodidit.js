@@ -117,6 +117,7 @@ function init() {
                     var date_str = months[ch['change_time'].substr(5,2)-1] + ' ' + ch['change_time'].substr(8,2);
                     html += '<span style="color: '+color+';">' + date_str + '</span>';
                     html += ': <a href="http://openstreetmap.org/browse/changeset/' + ch['changeset_id'] + '" target="_blank">changeset</a>';
+					html += ' <a href="http://nrenner.github.io/achavi/?changeset=' + ch['changeset_id'] + '" title="Show in Achavi" target="_blank">[A]</a>';
                     html += ' <a href="#" title="Filter by this changeset" onclick="setChangeset(' + ch['changeset_id'] + '); return false;" class="filter">[F]</a>';
                     html += ' by user <a href="http://openstreetmap.org/user/' + encodeURI(ch['user_name']) + '" target="_blank">' + htmlEscape(ch['user_name']) + '</a>';
                     html += ' <a href="#" title="Filter by this user" onclick="setUser(\'' + htmlEscape(ch['user_name']) + '\'); return false;" class="filter">[F]</a>';
@@ -148,6 +149,7 @@ function init() {
 
     // When map is dragged, all features are redrawn, but popup stays and becomes unclosable. This fixes it.
     vectorLayer.events.register('beforefeaturesremoved', ' ', function() { if(popup) destroyPopup(popup.feature); });
+	//vectorLayer.events.register('refresh', null, function() { document.getElementById('loading').style.visibility = 'inherit'; });
 
     selector.handlers.feature.stopDown = false;
     map.addControl(selector);
@@ -214,11 +216,13 @@ function myCreateArgs() {
 // Overriding protocol to display error message
 function startMessageRead(options) {
     document.getElementById('message').style.visibility = 'hidden';
+	document.getElementById('loading').style.visibility = 'inherit';
     return OpenLayers.Protocol.HTTP.prototype.read.apply(this, arguments);
 }
 
 function handleMessageRead(resp, options) {
     var request = resp.priv;
+	document.getElementById('loading').style.visibility = 'hidden';
     document.getElementById('message').style.visibility = 'hidden';
     if( request.status >= 200 && request.status < 300 ) {
         var doc = request.responseText;

@@ -71,6 +71,12 @@
             padding: 1em 2em;
             z-index: 999;
         }
+        #loading {
+            position: absolute;
+            left: 16px;
+            top: 110px;
+            z-index: 999;
+        }
 
         /* get rid of scroll bars on google chrome (ugly hack) */
         @media screen and (-webkit-min-device-pixel-ratio:0) {
@@ -94,6 +100,7 @@
         <a class="help" href="wdi_guide.gif" target="_blank">?</a>
     </td></tr><tr><td>
         <div id="message" style="visibility: hidden;"></div>
+        <div id="loading" style="visibility: hidden;"><img src="loading.gif"></div>
         <div id="map"></div>
     </td></tr></table>
 </body>
