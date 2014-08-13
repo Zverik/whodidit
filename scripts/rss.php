@@ -36,7 +36,7 @@ while( $row = $res->fetch_assoc() ) {
     $date = strtotime($row['change_time']);
     $date_str = date(DATE_RSS, $date);
     print "\t\t<pubDate>$date_str</pubDate>\n";
-    $desc = "User <a href=\"http://openstreetmap.org/user/".urlencode($row['user_name'])."\">".htmlspecialchars($row['user_name'])."</a> has uploaded <a href=\"http://openstreetmap.org/browse/changeset/${row['changeset_id']}\">a changeset</a> in your watched area using ".htmlspecialchars($row['created_by']).", titled \"".htmlspecialchars($row['comment'])."\". <a href=\"$frontend_url?changeset=${row['changeset_id']}&show=1\">Show it on WhoDidIt</a> or <a href=\"http://nrenner.github.io/achavi/?changeset=${row['changeset_id']}\">in Achavi</a>.";
+    $desc = "User <a href=\"http://openstreetmap.org/user/".rawurlencode($row['user_name'])."\">".htmlspecialchars($row['user_name'])."</a> has uploaded <a href=\"http://openstreetmap.org/browse/changeset/${row['changeset_id']}\">a changeset</a> in your watched area using ".htmlspecialchars($row['created_by']).", titled \"".htmlspecialchars($row['comment'])."\". <a href=\"$frontend_url?changeset=${row['changeset_id']}&show=1\">Show it on WhoDidIt</a> or <a href=\"http://nrenner.github.io/achavi/?changeset=${row['changeset_id']}\">in Achavi</a>.";
     $desc .= '<br><br>Statistics:<ul>';
     $desc .= '<li>Nodes: '.$row['nodes_created'].' created, '.$row['nodes_modified'].' modified, '.$row['nodes_deleted'].' deleted</li>';
     $desc .= '<li>Ways: '.$row['ways_created'].' created, '.$row['ways_modified'].' modified, '.$row['ways_deleted'].' deleted</li>';
