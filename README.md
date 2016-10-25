@@ -55,7 +55,7 @@ Then write your database parameters into `connect()` function in `db.inc.php`, a
     called with `latest=1` parameter, returns the latest changeset.
 * `rss.php`: As the title suggests, it generated an RSS feed with the latest changesets in a bbox.
 * `index.html`: The HTML page is a front-end to WDI infrastructure. It makes use of all PHP scripts
-    and allows user to check WDI tiles and aquire RSS links.
+    and allows user to check WDI tiles and acquire RSS links.
 * `whodidit.js`: The JavaScript behind the front-end.
 
 ## Author
