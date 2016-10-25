@@ -233,7 +233,7 @@ function handleMessageRead(resp, options) {
             document.getElementById('message').style.visibility = 'inherit';
         }
     } else {
-        document.getElementById('message').innerHTML = 'Failed to aquire tiles';
+        document.getElementById('message').innerHTML = 'Failed to acquire tiles';
         document.getElementById('message').style.visibility = 'inherit';
     }
     OpenLayers.Protocol.HTTP.prototype.handleRead.apply(this, arguments);
