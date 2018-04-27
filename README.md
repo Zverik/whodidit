@@ -4,7 +4,7 @@ This tool downloads replication diffs from OSM Planet site, calculates statistic
 and registers which 0.01-degree tiles were affected, and stores this in a MySQL database.
 A series of PHP scripts and a JS frontend are used to access that data.
 
-You can check a working installation at http://zverik.osm.rambler.ru/whodidit/
+You can check a working installation at http://zverik.openstreetmap.ru/whodidit/
 
 ## Installation
 
@@ -27,7 +27,7 @@ file **should not** be processed twice: the database has no means of skipping al
 processed files.
 
 If you do not want to wait several days to import backlog of changesets, you can download
-a weekly backup (and a relevant state.txt) from http://zverik.osm.rambler.ru/whodidit/backup/
+a weekly backup (and a relevant state.txt) from http://zverik.openstreetmap.ru/whodidit/backup/
 
 ### Frontend
 
